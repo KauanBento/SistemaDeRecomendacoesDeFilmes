@@ -15,7 +15,7 @@ namespace MovieApp.Data
 
         public IEnumerable<Movie> GetAll() => _context.Movies.ToList();
 
-        public Movie GetById(int id) => _context.Movies.Find(id);
+        public Movie? GetById(int id) => _context.Movies.Find(id);
 
         public void Add(Movie movie)
         {
