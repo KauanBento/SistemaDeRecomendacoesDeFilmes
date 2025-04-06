@@ -4,18 +4,20 @@ namespace MovieApp.Models
 {
     public class Movie
     {
-        public int Id { get; init; }
+        [Key]
+        public int Id { get; set; }
 
-        [Required(ErrorMessage = "O título do filme é obrigatório.")]
-        public string? Title { get; set; }
+        [Required(ErrorMessage = "O título é obrigatório")]
+        [MaxLength(255, ErrorMessage = "O título não pode ter mais que 255 caracteres")]
+        public string Title { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "O gênero do filme é obrigatório.")]
-        [StringLength(50, ErrorMessage = "O gênero não pode ter mais de 50 caracteres.")]
-        public string? Genre { get; set; }
+        [MaxLength(1000, ErrorMessage = "A descrição é muito longa")]
+        public string? Overview { get; set; }
 
-        [Required(ErrorMessage = "A nota do filme é obrigatória.")]
-        [Range(0, 10, ErrorMessage = "A nota deve estar entre 0 e 10.")]
-        public double Rating { get; set; }
-        public string? Comments { get; set; }
+        [Url(ErrorMessage = "O caminho do pôster deve ser uma URL válida")]
+        public string? PosterPath { get; set; }
+
+        [DataType(DataType.Date, ErrorMessage = "A data de lançamento deve estar em formato de data")]
+        public string? ReleaseDate { get; set; }
     }
 }

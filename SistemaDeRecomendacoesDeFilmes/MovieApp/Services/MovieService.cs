@@ -1,95 +1,143 @@
-using System;
-using System.Collections.Generic;
-using MovieApp.Data;
 using MovieApp.Models;
+using MovieApp.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System;
 
 namespace MovieApp.Services
 {
     public class MovieService
     {
-        private readonly MovieRepository _repository;
+        private readonly MovieContext _context;
+        private readonly HttpClient _httpClient;
+        private readonly string _tmdbApiKey = "1575db7d563dd229314f551f145b6ebb";
 
-        public MovieService(MovieRepository repository)
+        public MovieService(MovieContext context, HttpClient httpClient)
         {
-            _repository = repository;
+            _context = context;
+            _httpClient = httpClient;
         }
 
-        public IEnumerable<Movie> GetAllMovies()
+        public async Task<List<Movie>> GetAllAsync()
         {
-            try
-            {
-                return _repository.GetAll();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Erro ao buscar filmes.", ex);
-            }
+            return await _context.Movies.ToListAsync();
         }
 
-        public Movie GetMovieById(int id)
+        public async Task<Movie> GetByIdAsync(int id)
         {
-            try
-            {
-                var movie = _repository.GetById(id);
-                if (movie == null)
-                    throw new KeyNotFoundException($"Filme com ID {id} não encontrado.");
-
-                return movie;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Erro ao buscar filme com ID {id}.", ex);
-            }
+            return await _context.Movies.FindAsync(id);
         }
 
-        public void AddMovie(Movie movie)
+        public async Task<Movie> AddAsync(Movie movie)
         {
-            if (movie == null || string.IsNullOrWhiteSpace(movie.Title))
-                throw new ArgumentException("Filme inválido. O título é obrigatório.");
-
-            try
-            {
-                _repository.Add(movie);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Erro ao adicionar o filme.", ex);
-            }
+            _context.Movies.Add(movie);
+            await _context.SaveChangesAsync();
+            return movie;
         }
 
-        public void UpdateMovie(Movie movie)
+        public async Task<Movie> UpdateAsync(Movie movie)
         {
-            if (movie == null || string.IsNullOrWhiteSpace(movie.Title))
-                throw new ArgumentException("Filme inválido. O título é obrigatório.");
-
-            try
-            {
-                var existingMovie = _repository.GetById(movie.Id);
-                if (existingMovie == null)
-                    throw new KeyNotFoundException($"Filme com ID {movie.Id} não encontrado.");
-
-                _repository.Update(movie);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Erro ao atualizar o filme com ID {movie.Id}.", ex);
-            }
+            _context.Movies.Update(movie);
+            await _context.SaveChangesAsync();
+            return movie;
         }
 
-        public void DeleteMovie(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            try
-            {
-                var existingMovie = _repository.GetById(id);
-                if (existingMovie == null)
-                    throw new KeyNotFoundException($"Filme com ID {id} não encontrado.");
+            var movie = await _context.Movies.FindAsync(id);
+            if (movie == null)
+                return false;
 
-                _repository.Delete(id);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Erro ao excluir o filme com ID {id}.", ex);
-            }
+            _context.Movies.Remove(movie);
+            await _context.SaveChangesAsync();
+            return true;
         }
+
+        // 🔍 Buscar filmes do TMDb por nome
+        public async Task<IEnumerable<Movie>> SearchMoviesFromTmdbAsync(string query)
+        {
+            var response = await _httpClient.GetAsync(
+                $"https://api.themoviedb.org/3/search/movie?api_key={_tmdbApiKey}&query={Uri.EscapeDataString(query)}"
+            );
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            var results = jsonDoc.RootElement.GetProperty("results");
+
+            var movies = new List<Movie>();
+
+            foreach (var item in results.EnumerateArray())
+            {
+                movies.Add(new Movie
+                {
+                    Title = item.GetProperty("title").GetString(),
+                    Overview = item.GetProperty("overview").GetString(),
+                    ReleaseDate = item.GetProperty("release_date").GetString()
+
+                });
+            }
+
+            return movies;
+        }
+
+        // ➕ Adicionar filme ao banco de dados pelo ID do TMDb
+        public async Task<Movie> AddMovieFromTmdbAsync(int tmdbId)
+        {
+            var response = await _httpClient.GetAsync(
+                $"https://api.themoviedb.org/3/movie/{tmdbId}?api_key={_tmdbApiKey}"
+            );
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+
+            var movie = new Movie
+            {
+                Title = json.GetProperty("title").GetString(),
+                Overview = json.GetProperty("overview").GetString(),
+                PosterPath = json.TryGetProperty("poster_path", out var poster) && poster.ValueKind != JsonValueKind.Null
+         ? poster.GetString()
+         : null,
+                ReleaseDate = json.GetProperty("release_date").GetString()
+            };
+
+            return await AddAsync(movie);
+        }
+
+        public async Task<Movie> AddMovieFromTmdbAsync(string tmdbTitle)
+        {
+            var url = $"https://api.themoviedb.org/3/search/movie?query={Uri.EscapeDataString(tmdbTitle)}&api_key={_tmdbApiKey}&language=pt-BR";
+
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            using var jsonDoc = JsonDocument.Parse(content);
+            var results = jsonDoc.RootElement.GetProperty("results");
+
+            if (results.GetArrayLength() == 0)
+                throw new Exception("Filme não encontrado no TMDB.");
+
+            var firstResult = results[0];
+
+            var movie = new Movie
+            {
+                Title = firstResult.GetProperty("title").GetString(),
+                Overview = firstResult.GetProperty("overview").GetString(),
+                PosterPath = firstResult.TryGetProperty("poster_path", out var poster) && poster.ValueKind != JsonValueKind.Null
+                    ? poster.GetString()
+                    : null,
+                ReleaseDate = firstResult.GetProperty("release_date").GetString()
+            };
+
+            return await AddAsync(movie);
+        }
+
+
     }
 }

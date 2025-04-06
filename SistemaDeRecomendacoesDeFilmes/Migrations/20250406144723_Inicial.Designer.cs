@@ -4,13 +4,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MovieApp.Data;
 
 #nullable disable
 
 namespace SistemaDeRecomendacoesDeFilmes.Migrations
 {
     [DbContext(typeof(MovieContext))]
-    [Migration("20250403193745_Inicial")]
+    [Migration("20250406144723_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -31,20 +32,20 @@ namespace SistemaDeRecomendacoesDeFilmes.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Comments")
+                    b.Property<string>("Overview")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("PosterPath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Genre")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<double>("Rating")
-                        .HasColumnType("float");
+                    b.Property<string>("ReleaseDate")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 

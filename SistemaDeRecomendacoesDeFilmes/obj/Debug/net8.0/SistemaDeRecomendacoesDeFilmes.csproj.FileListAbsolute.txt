@@ -168,3 +168,9 @@ C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\Sis
 C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\SistemaDeRecomendacoesDeFilmes\obj\Debug\net8.0\SistemaDeRecomendacoesDeFilmes.pdb
 C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\SistemaDeRecomendacoesDeFilmes\obj\Debug\net8.0\SistemaDeRecomendacoesDeFilmes.genruntimeconfig.cache
 C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\SistemaDeRecomendacoesDeFilmes\obj\Debug\net8.0\ref\SistemaDeRecomendacoesDeFilmes.dll
+C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\SistemaDeRecomendacoesDeFilmes\bin\Debug\net8.0\Microsoft.Extensions.Configuration.dll
+C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\SistemaDeRecomendacoesDeFilmes\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\SistemaDeRecomendacoesDeFilmes\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.dll
+C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\SistemaDeRecomendacoesDeFilmes\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\SistemaDeRecomendacoesDeFilmes\bin\Debug\net8.0\Microsoft.Extensions.Http.dll
+C:\Users\kauan\OneDrive\Documentos\GitHub\Sistema-de-Recomenda--es-de-Filmes\SistemaDeRecomendacoesDeFilmes\bin\Debug\net8.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll

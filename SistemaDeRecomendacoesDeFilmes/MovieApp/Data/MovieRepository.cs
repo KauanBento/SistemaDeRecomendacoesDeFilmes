@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using MovieApp.Models;
 
 namespace MovieApp.Data
@@ -13,30 +12,31 @@ namespace MovieApp.Data
             _context = context;
         }
 
-        public IEnumerable<Movie> GetAll() => _context.Movies.ToList();
+        public async Task<IEnumerable<Movie>> GetAllAsync() => await _context.Movies.ToListAsync();
 
-        public Movie? GetById(int id) => _context.Movies.Find(id);
+        public async Task<Movie?> GetByIdAsync(int id) => await _context.Movies.FindAsync(id);
 
-        public void Add(Movie movie)
+        public async Task AddAsync(Movie movie)
         {
-            _context.Movies.Add(movie);
-            _context.SaveChanges();
+            await _context.Movies.AddAsync(movie);
+            await _context.SaveChangesAsync();
         }
 
-        public void Update(Movie movie)
+        public async Task UpdateAsync(Movie movie)
         {
             _context.Movies.Update(movie);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var movie = _context.Movies.Find(id);
+            var movie = await _context.Movies.FindAsync(id);
             if (movie != null)
             {
                 _context.Movies.Remove(movie);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
+
     }
 }

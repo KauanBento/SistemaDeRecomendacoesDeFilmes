@@ -3,6 +3,7 @@ using MovieApp.Models;
 using MovieApp.Data;
 using MovieApp.Services;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuração dos serviços
@@ -10,11 +11,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 builder.Services.AddDbContext<MovieContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<MovieRepository>();
-builder.Services.AddScoped<MovieService>();
+builder.Services.AddHttpClient<MovieService>();
+builder.Services.AddScoped<TMDbService>();
+
 
 var app = builder.Build();
 
